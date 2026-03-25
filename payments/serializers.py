@@ -21,6 +21,7 @@ class PaymentTransactionSerializer(serializers.ModelSerializer):
             "amount",
             "currency",
             "status",
+            "idempotency_key",
             "description",
             "created_at",
             "updated_at",
@@ -36,6 +37,7 @@ class CreatePaymentSerializer(serializers.Serializer):
     user_id = serializers.IntegerField()
     amount = serializers.DecimalField(max_digits=12, decimal_places=2)
     currency = serializers.CharField(max_length=3, default="USD")
+    idempotency_key = serializers.CharField(max_length=255, required=False, allow_null=True)
     description = serializers.CharField(required=False, default="")
 
     def validate_amount(self, value):

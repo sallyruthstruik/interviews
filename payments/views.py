@@ -27,10 +27,24 @@ class CreatePaymentView(APIView):
         data = serializer.validated_data
         user = Account.objects.get(id=data["user_id"])
 
+        idempotency_key = data.get("idempotency_key")
+        if idempotency_key:
+            existing = PaymentTransaction.objects.filter(
+                idempotency_key=idempotency_key,
+                user=user,
+            ).first()
+            if existing:
+                logger.info("duplicate request")
+                return Response(
+                    PaymentTransactionSerializer(existing).data,
+                    status=status.HTTP_200_OK,
+                )
+
         payment = PaymentTransaction.objects.create(
             user=user,
             amount=data["amount"],
             currency=data.get("currency", "USD"),
+            idempotency_key=idempotency_key,
             description=data.get("description", ""),
         )
 
