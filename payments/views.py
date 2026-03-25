@@ -42,3 +42,14 @@ class CreatePaymentView(APIView):
             PaymentTransactionSerializer(payment).data,
             status=status.HTTP_201_CREATED,
         )
+
+
+class PaymentListView(ListAPIView):
+    """
+    GET /api/payments/
+    Returns paginated list of all payments.
+    """
+
+    serializer_class = PaymentTransactionSerializer
+    queryset = PaymentTransaction.objects.all()
+    filterset_fields = ["status", "user", "currency"]
