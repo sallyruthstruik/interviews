@@ -9,6 +9,7 @@ from .serializers import (
     CreatePaymentSerializer,
     PaymentTransactionSerializer,
 )
+from .tasks import process_payment
 
 logger = logging.getLogger(__name__)
 
@@ -34,9 +35,9 @@ class CreatePaymentView(APIView):
             description=data.get("description", ""),
         )
 
-        payment.process()
+        process_payment.delay(str(payment.pk))
 
-        logger.info("payment created")  # BUG: no useful context
+        logger.info("payment %s created, processing queued", payment.pk)
 
         return Response(
             PaymentTransactionSerializer(payment).data,
