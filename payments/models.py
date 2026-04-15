@@ -47,6 +47,11 @@ class PaymentTransaction(models.Model):
         choices=Status.choices,
         default=Status.PENDING,
     )
+    idempotency_key = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True,
+    )
     description = models.TextField(blank=True, default="")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

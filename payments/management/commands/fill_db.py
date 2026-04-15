@@ -61,5 +61,6 @@ class Command(BaseCommand):
                 amount=round(random.uniform(5.00, 500.00), 2),
                 currency=random.choice(["USD", "EUR", "GBP"]),
                 status=random.choice(statuses),
+                idempotency_key=str(uuid.uuid4()) if random.random() > 0.3 else None,
                 description=f"Payment #{i + 1}",
             )
