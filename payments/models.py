@@ -59,18 +59,25 @@ class PaymentTransaction(models.Model):
         return f"Payment {self.id} — {self.amount} {self.currency} [{self.status}]"
 
     def process(self):
-        """Simulate payment processing."""
-        import random
-        import time
+        from .partner import PartnerClient
 
-        logger.info("processing payment")
+        logger.info("processing payment %s", self.id)
 
-        time.sleep(random.uniform(0.1, 0.3))
+        client = PartnerClient()
+        foreign_id = str(self.id)
 
-        if random.random() < 0.85:
-            self.status = self.Status.SUCCESS
-        else:
+        try:
+            if self.type == self.Type.DEPOSIT:
+                response = client.deposit(self.amount, self.currency, foreign_id)
+            else:
+                response = client.withdraw(self.amount, self.currency, foreign_id)
+
+            self.status = (
+                self.Status.SUCCESS if response.status == "success" else self.Status.FAILED
+            )
+        except Exception:
+            logger.exception("partner call failed for payment %s", self.id)
             self.status = self.Status.FAILED
 
         self.save()
-        logger.info("payment done")
+        logger.info("payment %s finished with status %s", self.id, self.status)
