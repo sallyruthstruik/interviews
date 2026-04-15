@@ -1,6 +1,7 @@
 import logging
 
 from rest_framework import status
+from rest_framework.generics import ListAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
@@ -42,3 +43,9 @@ class CreatePaymentView(APIView):
             PaymentTransactionSerializer(payment).data,
             status=status.HTTP_201_CREATED,
         )
+
+
+class PaymentListView(ListAPIView):
+    serializer_class = PaymentTransactionSerializer
+    queryset = PaymentTransaction.objects.all()
+    filterset_fields = ["status", "user", "currency"]
