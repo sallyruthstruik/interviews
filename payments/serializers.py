@@ -9,29 +9,6 @@ class AccountSerializer(serializers.ModelSerializer):
         fields = ["id", "email", "full_name", "created_at"]
 
 
-class PaymentTransactionSerializer(serializers.ModelSerializer):
-    user_email = serializers.SerializerMethodField()
-
-    class Meta:
-        model = PaymentTransaction
-        fields = [
-            "id",
-            "user",
-            "user_email",
-            "amount",
-            "currency",
-            "status",
-            "description",
-            "created_at",
-            "updated_at",
-        ]
-        read_only_fields = ["id", "status", "created_at", "updated_at"]
-
-    def get_user_email(self, obj):
-        # BUG: causes N+1 — each payment triggers a separate query for user
-        return obj.user.email
-
-
 class CreatePaymentSerializer(serializers.Serializer):
     user_id = serializers.IntegerField()
     amount = serializers.DecimalField(max_digits=12, decimal_places=2)
